@@ -24,3 +24,11 @@ test_tmp/
 # Coverage files
 .coverage
 htmlcov/
+
+# Javascript
+node_modules/
+package-lock.json
+
+
+# MacOs
+.DS_Store

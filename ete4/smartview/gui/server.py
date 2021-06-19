@@ -55,10 +55,11 @@ import sqlalchemy
 from itsdangerous import TimedJSONWebSignatureSerializer as JSONSigSerializer
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from ete4 import Tree
 from ete4.parser.newick import NewickError
 from ete4.smartview.utils import InvalidUsage
 from ete4.smartview.ete import nexus, draw, gardening as gdn
+from ete4 import Tree
+from ete4.smartview.layouts import TreeStyle
 
 
 db = None  # call initialize() to fill these up

@@ -1358,6 +1358,18 @@ def initialize(tree=None, layouts=[], safe_mode=False):
             '<pre>' + __doc__ + '</pre>\n'
             '<p>For analysis, <a href="/static/gui.html">use our gui</a>!</p>\n'
             '</body>\n</html>')
+    
+    @app.route('/shutdown', methods=['GET'])
+    def shutdown():
+        shutdown_server()
+        return 'Server shutting down...'
+
+    def shutdown_server():
+        func = request.environ.get('werkzeug.server.shutdown')
+        print()
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
 
     @app.errorhandler(InvalidUsage)
     def handle_invalid_usage(error):
@@ -1446,9 +1458,10 @@ def add_resources(api):
 
 def run_smartview(tree=None, tree_name=None, layouts=[],
         safe_mode=False, port=5000, run=True, 
-        serve_static=True, verbose=True):
+        serve_static=True, verbose=True, render_template=False):
     # Set tree_name to None if no tree was provided
     # Generate tree_name if none was provided
+    from flask import render_template
     tree_name = tree_name or get_random_string(10) if tree else None
 
     if serve_static:
@@ -1476,7 +1489,7 @@ def run_smartview(tree=None, tree_name=None, layouts=[],
     if not verbose:
         app.logger.disabled = True
         logging.getLogger('werkzeug').disabled = True
-
+    #app.send_static_file('/home/deng/Projects/ete4/hackathon/metadata_annotation/index.html')
     if run:
         app.run(debug=True, use_reloader=False, port=port)
     else:

@@ -50,15 +50,60 @@ from .common import log, POSNAMES, node_matcher, src_tree_iterator
 from .. import PhyloTree
 from ..smartview import TreeStyle
 from ..smartview.gui.server import run_smartview
+from ..smartview.renderer.layouts import (
+                                            context_layouts,
+                                            evol_events_layouts,
+                                            ncbi_taxonomy_layouts,
+                                            phylocloud_egg5_layouts,
+                                            seq_layouts,
+                                        )
+
+import csv
 
 DESC = "Launches an instance of the ETE smartview tree explorer server."
 
 def populate_args(explore_args_p):
     explore_args_p.add_argument("--face", action="append",
                              help="adds a face to the selected nodes. In example --face 'value:@dist, pos:b-top, color:red, size:10, if:@dist>0.9' ")
+    explore_args_p.add_argument("--metadata", action="append",
+                             help="add the annotations metadata as tsv file")
+    explore_args_p.add_argument("--alignment", action="append",
+                             help="add the alignment as fasta file")
+    explore_args_p.add_argument("--outfile", action="append",
+                             help="output annotated tree nw file")
+
     return
 
+def parse_emapper(metadata):
+    metatable = []
+    tsv_file = open(metadata)
+    read_tsv = csv.DictReader(tsv_file, delimiter="\t")
 
+    for row in read_tsv:
+        metatable.append(row)
+    tsv_file.close()
+
+    return metatable, read_tsv.fieldnames
+
+def parse_fasta(fastafile):
+    fasta_dict = {}
+    with open(fastafile,'r') as f:
+        head = ''
+        seq = ''
+        for line in f:
+            line = line.strip()
+            if line.startswith('>'):
+                if seq != '':
+                    fasta_dict[head] = seq
+                    seq = ''
+                    head = line[1:]
+                else:
+                    head = line[1:]
+            else:
+                seq += line
+    fasta_dict[head] = seq
+
+    return fasta_dict
 
 def run(args):
     
@@ -66,12 +111,41 @@ def run(args):
     # Basic tree style
     ts = TreeStyle()
     ts.show_leaf_name = True
+    
     try:
         tfile = next(src_tree_iterator(args))
     except StopIteration:
         run_smartview()
     else:
         t = PhyloTree(tfile, format=args.src_newick_format)
-        t.explore(tree_name=tfile)
+        
+        if args.metadata:
+            annotations, columns = parse_emapper(args.metadata[0])
+            for annotation in annotations:
+                try:
+                    target_node = t.search_nodes(name=annotation['#query'])[0]
+                    for _ in range(1, len(columns)):
+                        target_node.add_prop(columns[_], annotation[columns[_]])
+                        
+                        if columns[_] == 'seed_ortholog': # only for emapper
+                            taxid, gene = annotation[columns[_]].split('.', 1)
+                            target_node.add_prop('taxid', taxid)
+                            target_node.add_prop('gene', gene)
+    
+                except:
+                    pass
+            t.annotate_ncbi_taxa(taxid_attr='taxid')
+        if args.alignment:
+            fastafile = args.alignment[0]
+            fasta_dict = parse_fasta(fastafile)
+            for leaf in t.iter_leaves():
+                leaf.add_prop("seq", fasta_dict.get(leaf.name))
+            t.explore(tree_name=tfile, layouts=[seq_layouts.LayoutAlignment()])
+        if args.outfile:
+            filename = args.outfile[0]
+        else:
+            t.write(outfile=filename, properties=[])
+            t.explore(tree_name=tfile)
+
  
         

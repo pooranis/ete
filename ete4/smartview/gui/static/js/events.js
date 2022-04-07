@@ -350,6 +350,16 @@ async function on_postMessage(event) {
     // TODO: we should register allowed origins
     //if (!wiew.allowed_origins.includes(event.origin))
         //return
+
+    if (event.data.downloadImg) {
+        view.download.svg();
+        return
+    }
+
+    if (event.data.toggleSearch) {
+        view.search();
+        return
+    }
     
     const { selectionMode, eventType, name, node, nodes, selectCommand, activeType } = event.data;
 

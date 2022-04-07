@@ -2,7 +2,7 @@ import { view } from "./gui.js";
 import { cartesian_shifted } from "./draw.js";
 
 
-export { draw_pixi, clear_pixi };
+export { draw_pixi, clear_pixi, apps };
 
 //Aliases
 const Application = PIXI.Application;
@@ -96,7 +96,6 @@ function draw_pixi(container, items, tl, zoom) {
 function draw(items, tl, zoom) {
     items.forEach(seq => {
         const [ el, box ] = [ seq[0], seq[1] ];
-        console.log(box)
         const type = el.split("-")[1]
         const [ zx, zy ] = [ zoom.x, zoom.y ];
         if (["aa_notext", "aa_text", "nt_notext", "nt_text"].includes(type))

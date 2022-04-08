@@ -71,10 +71,11 @@ def populate_args(explore_args_p):
                              help="add the alignment as fasta file")
     explore_args_p.add_argument("--outfile", action="append",
                              help="output annotated tree nw file")
-
+    # explore_args_p.add_argument("--image", action="append",
+    #                          help="Render tree image instead of showing it. A filename should be provided. PDF, SVG and PNG file extensions are supported (i.e. - tree.svg)")
     return
 
-def parse_emapper(metadata):
+def parse_metadata(metadata):
     metatable = []
     tsv_file = open(metadata)
     read_tsv = csv.DictReader(tsv_file, delimiter="\t")
@@ -105,6 +106,27 @@ def parse_fasta(fastafile):
 
     return fasta_dict
 
+def add_annotations(t, metadata):
+    # add props to leaf
+    annotations, columns = parse_metadata(metadata)
+
+    #['#query', 'seed_ortholog', 'evalue', 'score', 'eggNOG_OGs', 'max_annot_lvl', 'COG_category', 'Description', \
+    # 'Preferred_name', 'GOs', 'EC', 'KEGG_ko', 'KEGG_Pathway', 'KEGG_Module', 'KEGG_Reaction', 'KEGG_rclass', \
+    # 'BRITE', 'KEGG_TC', 'CAZy', 'BiGG_Reaction', 'PFAMs']
+    for annotation in annotations:
+        gene_name = next(iter(annotation.items()))[1] #gene name must be on first column
+        try:
+            target_node = t.search_nodes(name=gene_name)[0]
+            for _ in range(1, len(columns)):
+                if columns[_] == 'seed_ortholog': # only for emapper annotations
+                    taxid, gene = annotation[columns[_]].split('.', 1)
+                    target_node.add_prop('taxid', taxid)
+                    target_node.add_prop('gene', gene)
+                target_node.add_prop(columns[_], annotation[columns[_]])
+        except:
+            pass
+
+
 def run(args):
     
     # VISUALIZATION
@@ -120,20 +142,8 @@ def run(args):
         t = PhyloTree(tfile, format=args.src_newick_format)
         
         if args.metadata:
-            annotations, columns = parse_emapper(args.metadata[0])
-            for annotation in annotations:
-                try:
-                    target_node = t.search_nodes(name=annotation['#query'])[0]
-                    for _ in range(1, len(columns)):
-                        target_node.add_prop(columns[_], annotation[columns[_]])
-                        
-                        if columns[_] == 'seed_ortholog': # only for emapper
-                            taxid, gene = annotation[columns[_]].split('.', 1)
-                            target_node.add_prop('taxid', taxid)
-                            target_node.add_prop('gene', gene)
-    
-                except:
-                    pass
+            metadata = args.metadata[0]
+            add_annotations(t, metadata)
             t.annotate_ncbi_taxa(taxid_attr='taxid')
         if args.alignment:
             fastafile = args.alignment[0]
@@ -141,11 +151,14 @@ def run(args):
             for leaf in t.iter_leaves():
                 leaf.add_prop("seq", fasta_dict.get(leaf.name))
             t.explore(tree_name=tfile, layouts=[seq_layouts.LayoutAlignment()])
-        if args.outfile:
+        
+        elif args.outfile:
             filename = args.outfile[0]
-        else:
             t.write(outfile=filename, properties=[])
+        else:
             t.explore(tree_name=tfile)
+        
+
 
  
         

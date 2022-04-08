@@ -54,7 +54,7 @@ TOOLSPATH = os.path.realpath(os.path.split(os.path.realpath(__file__))[0])
 import argparse
 from . import (ete_split, ete_expand, ete_annotate, ete_ncbiquery, ete_view,
                ete_generate, ete_mod, ete_extract, ete_compare, ete_evol,
-               ete_maptrees, ete_diff, ete_explore)
+               ete_maptrees, ete_diff, ete_explore, ete_draw)
 from . import common
 from .common import log
 from .utils import colorify, which
@@ -261,6 +261,12 @@ def _main(arguments):
     explore_args_p.set_defaults(func=ete_explore.run)
     ete_explore.populate_args(explore_args_p)
 
+    # - draw - 
+    draw_args_p = subparser.add_parser("draw", parents=[source_args_p, main_args_p],
+                                        description=ete_draw.DESC,
+                                       formatter_class=argparse.RawDescriptionHelpFormatter)
+    draw_args_p.set_defaults(func=ete_draw.run)
+    ete_draw.populate_args(draw_args_p) 
     # - helpers -
     
     generate_args_p = subparser.add_parser("version")

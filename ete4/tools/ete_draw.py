@@ -83,7 +83,7 @@ def populate_args(explore_args_p):
 #     return 
 
 def end_flask():
-    requests.get('http://127.0.0.1:5000/shutdown')
+    requests.get(url+'shutdown')
 
 def browser_driver(url, executable_path=DRIVERPATH, outdir=CURRENTPATH):
     options = webdriver.FirefoxOptions()

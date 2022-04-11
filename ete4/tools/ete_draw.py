@@ -67,10 +67,10 @@ def populate_args(explore_args_p):
                              help="add the annotations metadata as tsv file")
     explore_args_p.add_argument("--alignment", action="append",
                              help="add the alignment as fasta file")
-    explore_args_p.add_argument("--outdir", action="append",
-                             help="output annotated tree nw file")
-    explore_args_p.add_argument("--image", action="append",
-                             help="Render tree image instead of showing it. A filename should be provided. PDF, SVG and PNG file extensions are supported (i.e. - tree.svg)")
+    explore_args_p.add_argument("--outdir", action="append", type=dir_path,
+                             help="output tree directory")
+    # explore_args_p.add_argument("--image", action="append",
+    #                          help="Render tree image instead of showing it. A filename should be provided. PDF, SVG and PNG file extensions are supported (i.e. - tree.svg)")
     return
 
 
@@ -93,21 +93,17 @@ def browser_driver(url, executable_path=DRIVERPATH, outdir=CURRENTPATH):
     options.set_preference("browser.download.dir", outdir)
 
     browser_driver = webdriver.Firefox(
-            executable_path=DRIVERPATH,  # 这里必须要是绝对路径
-            # windows是.exe文件 xxx/xxx/geckodriver.exe, xxx/xxx/firefox.exe
-            # linux直接是xxx/xxx/geckodriver, xxx/xxx/firefox
+            executable_path=DRIVERPATH,  # abslotue path
             #firefox_binary=r"/home/deng/FireFox/firefox",
             options=options)
     try:
         #url = r'https://www.google.com/
         browser_driver.get(url)
-        #print ('当前爬取的网页url为:{0}'.format(browser_driver.current_url)) 
-        # print(browser_driver.find_element_by_id('div_tree').get_attribute('innerHTML'))
+        #print ('current url:{0}'.format(browser_driver.current_url)) 
         time.sleep(0.5)
         actions = ActionChains(browser_driver)
         actions.send_keys('d')
         actions.perform()
-        print("downloaded")
 
     finally:
         time.sleep(0.5)
@@ -128,16 +124,18 @@ def main(args):
         command_list.append('--alignment')
         command_list.append(alignment)
 
-
-
     subprocess.Popen(command_list,
+                stdout=subprocess.DEVNULL, 
+                stderr=subprocess.STDOUT
                 #  stdout=open('/dev/null', 'w'),
                 #  stderr=open('logfile.log', 'a'),
                 #  preexec_fn=os.setpgrp
                  )
 
     if args.outdir:
-        outdir = args.outdir[0]
+        outdir = dir_path(args.outdir[0])
+        os.chdir(outdir)
+        outdir = os.getcwd()
     else:
         outdir = CURRENTPATH
         
@@ -145,6 +143,12 @@ def main(args):
     time.sleep(1)
     end_flask()
     return
+
+def dir_path(string):
+    if os.path.isdir(string):
+        return string
+    else:
+        raise NotADirectoryError(string)
 
 def run(args):
     main(args)

@@ -40,7 +40,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from .common import log, POSNAMES, node_matcher, src_tree_iterator
-from .. import PhyloTree
+# from .. import PhyloTree
 from ..smartview import TreeStyle
 
 from selenium import webdriver
@@ -71,6 +71,8 @@ def populate_args(explore_args_p):
                              help="output tree directory")
     # explore_args_p.add_argument("--image", action="append",
     #                          help="Render tree image instead of showing it. A filename should be provided. PDF, SVG and PNG file extensions are supported (i.e. - tree.svg)")
+    # layout
+    # face
     return
 
 
@@ -109,18 +111,18 @@ def browser_driver(url, executable_path=DRIVERPATH, outdir=CURRENTPATH):
         time.sleep(0.5)
         browser_driver.quit()
 
-def main(args):
-    tfile = next(src_tree_iterator(args))
-    
-    command_list = ['nohup', 'ete4', 'explore', '-t', tfile]
+def drawtree(tree, metadata=None, alignment=None, outfile=None, outdir=CURRENTPATH):
+    #tfile = next(src_tree_iterator(args))
+    if outfile:
+        command_list = ['nohup', 'ete4', 'explore', '-t', outfile]
+    else:
+        command_list = ['nohup', 'ete4', 'explore', '-t', tree]
 
-    if args.metadata:
-        metadata = args.metadata[0]
+    if metadata:
         command_list.append('--metadata')
         command_list.append(metadata)
 
-    if args.alignment:
-        alignment = args.alignment[0]
+    if alignment:
         command_list.append('--alignment')
         command_list.append(alignment)
 
@@ -131,13 +133,6 @@ def main(args):
                 #  stderr=open('logfile.log', 'a'),
                 #  preexec_fn=os.setpgrp
                  )
-
-    if args.outdir:
-        outdir = dir_path(args.outdir[0])
-        os.chdir(outdir)
-        outdir = os.getcwd()
-    else:
-        outdir = CURRENTPATH
         
     browser_driver(url, outdir=outdir)
     time.sleep(1)
@@ -151,7 +146,26 @@ def dir_path(string):
         raise NotADirectoryError(string)
 
 def run(args):
-    main(args)
+    global metadata, alignment, outdir
+    tfile = next(src_tree_iterator(args))
+    if args.metadata:
+        metadata = args.metadata[0] 
+    else:
+        metadata = None
+
+    if args.alignment:
+        alignment = args.alignment[0]
+    else:
+        alignment = None
+
+    if args.outdir:
+        outdir = dir_path(args.outdir[0])
+        os.chdir(outdir)
+        outdir = os.getcwd()
+    else:
+        outdir = CURRENTPATH
+
+    drawtree(tfile, metadata=metadata, alignment=alignment, outdir=outdir)
     # VISUALIZATION
     # Basic tree style
     # ts = TreeStyle()

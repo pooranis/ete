@@ -73,6 +73,8 @@ def populate_args(explore_args_p):
                              help="output annotated tree nw file")
     # explore_args_p.add_argument("--image", action="append",
     #                          help="Render tree image instead of showing it. A filename should be provided. PDF, SVG and PNG file extensions are supported (i.e. - tree.svg)")
+    # layout
+    # face
     return
 
 def parse_metadata(metadata):

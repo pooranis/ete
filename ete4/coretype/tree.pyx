@@ -64,7 +64,7 @@ from ..smartview.renderer.nodestyle import NodeStyle as smNodeStyle
 from ..smartview.renderer.face_positions import _FaceAreas, get_FaceAreas
 from ..smartview.renderer.layouts.default_layouts import LayoutLeafName,\
         LayoutBranchLength, LayoutBranchSupport
-
+from ..tools.ete_draw import drawtree
 __all__ = ["Tree", "TreeNode"]
 
 DEFAULT_COMPACT = False
@@ -1572,6 +1572,11 @@ cdef class TreeNode(object):
         run_smartview(tree=self, tree_name=tree_name,
                 layouts=list(default_layouts + layouts), port=port,
                 custom_api=custom_api, custom_route=custom_route)
+
+    def draw(self, tree_name=None, layouts=[]):
+        outtree = self.write(properties=[], outfile=tree_name)
+        drawtree(tree=outtree, outfile=tree_name)
+        return
 
     def copy(self, method="cpickle"):
         """.. versionadded: 2.1

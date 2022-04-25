@@ -1573,9 +1573,9 @@ cdef class TreeNode(object):
                 layouts=list(default_layouts + layouts), port=port,
                 custom_api=custom_api, custom_route=custom_route)
 
-    def draw(self, tree_name=None, layouts=[]):
+    def draw(self, tree_name=None, ncbitaxa=False, layouts=[]):
         outtree = self.write(properties=[], outfile=tree_name)
-        drawtree(tree=outtree, outfile=tree_name)
+        drawtree(tree=outtree, outfile=tree_name, ncbitaxa=ncbitaxa, layouts=layouts)
         return
 
     def copy(self, method="cpickle"):

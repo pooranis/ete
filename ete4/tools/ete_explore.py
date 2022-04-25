@@ -71,6 +71,10 @@ def populate_args(explore_args_p):
                              help="add the alignment as fasta file")
     explore_args_p.add_argument("--outfile", action="append",
                              help="output annotated tree nw file")
+    explore_args_p.add_argument("--layouts", action="append",
+                             help="layouts")
+    explore_args_p.add_argument("--ncbi", action="store_true",
+                             help="output ncbi layout")
     # explore_args_p.add_argument("--image", action="append",
     #                          help="Render tree image instead of showing it. A filename should be provided. PDF, SVG and PNG file extensions are supported (i.e. - tree.svg)")
     # layout
@@ -157,6 +161,15 @@ def run(args):
         elif args.outfile:
             filename = args.outfile[0]
             t.write(outfile=filename, properties=[])
+
+        elif args.ncbi:
+            taxa_layout = ncbi_taxonomy_layouts.LayoutLastCommonAncestor()
+            taxa_layout.active=True
+            t.explore(tree_name=tfile, layouts=[taxa_layout])
+        elif args.layouts:
+            #taxa_layout = ncbi_taxonomy_layouts.LayoutLastCommonAncestor()
+            #taxa_layout.active=True
+            t.explore(tree_name=tfile, layouts=args.layouts)
         else:
             t.explore(tree_name=tfile)
         

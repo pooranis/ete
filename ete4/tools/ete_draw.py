@@ -69,6 +69,10 @@ def populate_args(explore_args_p):
                              help="add the alignment as fasta file")
     explore_args_p.add_argument("--outdir", action="append", type=dir_path,
                              help="output tree directory")
+    explore_args_p.add_argument("--layouts", action="append",
+                             help="custom layout")
+    explore_args_p.add_argument("--ncbi", action="store_true",
+                             help="output ncbi layout")
     # explore_args_p.add_argument("--image", action="append",
     #                          help="Render tree image instead of showing it. A filename should be provided. PDF, SVG and PNG file extensions are supported (i.e. - tree.svg)")
     # layout
@@ -111,7 +115,7 @@ def browser_driver(url, executable_path=DRIVERPATH, outdir=CURRENTPATH):
         time.sleep(0.5)
         browser_driver.quit()
 
-def drawtree(tree, metadata=None, alignment=None, outfile=None, outdir=CURRENTPATH):
+def drawtree(tree, metadata=None, alignment=None, outfile=None, outdir=CURRENTPATH, ncbitaxa=False, layouts=[]):
     #tfile = next(src_tree_iterator(args))
     if outfile:
         command_list = ['nohup', 'ete4', 'explore', '-t', outfile]
@@ -126,6 +130,13 @@ def drawtree(tree, metadata=None, alignment=None, outfile=None, outdir=CURRENTPA
         command_list.append('--alignment')
         command_list.append(alignment)
 
+    if ncbitaxa:
+        command_list.append('--ncbi')
+
+    if layouts:
+        command_list.append('--layouts')
+        command_list.append(layouts[0])
+        
     subprocess.Popen(command_list,
                 stdout=subprocess.DEVNULL, 
                 stderr=subprocess.STDOUT
@@ -146,7 +157,7 @@ def dir_path(string):
         raise NotADirectoryError(string)
 
 def run(args):
-    global metadata, alignment, outdir
+    global metadata, alignment, outdir, ncbitaxa
     tfile = next(src_tree_iterator(args))
     if args.metadata:
         metadata = args.metadata[0] 
@@ -158,6 +169,11 @@ def run(args):
     else:
         alignment = None
 
+    if args.ncbi:
+        ncbitaxa = args.ncbi
+    else:
+        ncbitaxa = False
+
     if args.outdir:
         outdir = dir_path(args.outdir[0])
         os.chdir(outdir)
@@ -165,7 +181,7 @@ def run(args):
     else:
         outdir = CURRENTPATH
 
-    drawtree(tfile, metadata=metadata, alignment=alignment, outdir=outdir)
+    drawtree(tfile, metadata=metadata, alignment=alignment, outdir=outdir, ncbitaxa=ncbitaxa)
     # VISUALIZATION
     # Basic tree style
     # ts = TreeStyle()

@@ -1574,8 +1574,37 @@ cdef class TreeNode(object):
                 custom_api=custom_api, custom_route=custom_route)
 
     def draw(self, tree_name=None, ncbitaxa=False, layouts=[]):
+        from multiprocessing import Process
+        import time
+        import requests
+        from ete4.tools.ete_draw import browser_driver
         outtree = self.write(properties=[], outfile=tree_name)
-        drawtree(tree=outtree, outfile=tree_name, ncbitaxa=ncbitaxa, layouts=layouts)
+        
+        #drawtree(tree=outtree, outfile=tree_name, ncbitaxa=ncbitaxa, layouts=layouts)
+        
+        def download():
+            url = "http://127.0.0.1:5000/static/gui.html?tree=example"
+
+            def end_flask():
+                requests.get('http://localhost:5000/shutdown')
+                return
+
+            browser_driver(url)
+
+            time.sleep(1)
+
+            #print("quit")
+            #end_flask()
+            return
+
+        p = Process(target=self.explore, args=(outtree,))
+        p.start()
+
+        p2 = Process(target=download)
+        p2.start()
+        time.sleep(2)
+        #p.terminate()
+        p.join()
         return
 
     def copy(self, method="cpickle"):

@@ -49,12 +49,12 @@ class LayoutPlot(TreeLayout):
                 update_vals("color", node)
                 
         if self.size_prop:
-            self.size_range = vals["size"][1:3]
-            print(self.size_range)
-
+            #self.size_range = vals["size"][1:3]
+            self.size_range = [float(min(vals["size"][3])), float(max(vals["size"][3]))]
+            
     def get_size(self, node):
         minval, maxval = self.size_range
-        return node.props.get(self.size_prop, 0) / maxval * self.width
+        return float(node.props.get(self.size_prop, 0)) / float(maxval) * self.width
 
 
 class LayoutBarplot(LayoutPlot):
@@ -77,8 +77,9 @@ class LayoutBarplot(LayoutPlot):
             tree_style.aligned_panel_header.add_face(face, column=self.column)
 
     def set_node_style(self, node):
-        width = self.get_size(node)
-        color = "red"
-        face = RectFace(width, None, color=color, padding_x=self.padding_x)
-        node.add_face(face, position=self.position, column=self.column,
-                collapsed_only=not node.is_leaf())
+        if node.is_leaf():
+            width = self.get_size(node)
+            color = "red"
+            face = RectFace(width, None, color=color, padding_x=self.padding_x)
+            node.add_face(face, position=self.position, column=self.column,
+                    collapsed_only=not node.is_leaf())

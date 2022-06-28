@@ -600,6 +600,10 @@ class GTDBTaxa(object):
                                lineage = lineage,
                                rank = tax2rank.get(lineage[-1], 'Unknown'),
                                named_lineage = [tax2name.get(tax, str(tax)) for tax in lineage])
+            # if n.name:
+            #     pass
+            # else:
+            #     n.name = n.props.get("sci_name")
 
         return tax2name, tax2track, tax2rank
 

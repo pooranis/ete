@@ -1578,10 +1578,14 @@ cdef class TreeNode(object):
         import time
         import requests
         from ete4.tools.ete_draw import browser_driver
-        outtree = self.write(properties=[], outfile=tree_name)
+        outtree = self.write(properties=[])
         
         #drawtree(tree=outtree, outfile=tree_name, ncbitaxa=ncbitaxa, layouts=layouts)
         
+        def run(self, layouts):
+            self.explore(tree_name="example", layouts=layouts)
+            return 
+
         def download():
             url = "http://127.0.0.1:5000/static/gui.html?tree=example"
 
@@ -1597,13 +1601,13 @@ cdef class TreeNode(object):
             #end_flask()
             return
 
-        p = Process(target=self.explore, args=(outtree,))
+        p = Process(target=run, args=(self,layouts, ))
         p.start()
 
         p2 = Process(target=download)
         p2.start()
-        time.sleep(2)
-        #p.terminate()
+        time.sleep(3)
+        p.terminate()
         p.join()
         return
 

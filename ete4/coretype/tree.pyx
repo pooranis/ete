@@ -1583,11 +1583,14 @@ cdef class TreeNode(object):
         #drawtree(tree=outtree, outfile=tree_name, ncbitaxa=ncbitaxa, layouts=layouts)
         
         def run(self, layouts):
-            self.explore(tree_name="example", layouts=layouts)
+            self.explore(tree_name="example", layouts=layouts, show_leaf_name=True, 
+            show_branch_length=True, show_branch_support=True, port=5000,
+            custom_api={}, custom_route={})
             return 
 
         def download():
-            url = "http://127.0.0.1:5000/static/gui.html?tree=example"
+            #url = "http://127.0.0.1:5000/static/gui.html?tree=example"
+            url = "http://127.0.0.1:5000/"
 
             def end_flask():
                 requests.get('http://localhost:5000/shutdown')
@@ -1601,7 +1604,7 @@ cdef class TreeNode(object):
             #end_flask()
             return
 
-        p = Process(target=run, args=(self,layouts, ))
+        p = Process(target=run, args=(self, layouts,))
         p.start()
 
         p2 = Process(target=download)

@@ -84,19 +84,20 @@ https://github.com/etetoolkit/ete/wiki/ROADMAP
 Install from this fork
 ------------------------
 
-```bash
-## optional dependencies (will work without)
-pip3 install --user lxml
-## on mac can install pyqt 5 through homebrew
-brew install pyqt@5
-## 
-git clone https://github.com/pooranis/ete.git
-cd ete
-python3 ./setup.py install --user
-## make SQLite-Levenshtein for fuzzy match of names in ncbi
-cd /path/to/python/user/lib/python3.x/site-packages/ete3-3.1.2-py3.10.egg/ete3/ncbi_taxonomy/SQLite-Levenshtein/
-make
-```
+.. code-block:: bash
+
+   ## optional dependencies lxml and pyqt (will work without)
+   pip3 install --user lxml
+   # on mac can install pyqt 5 through homebrew
+   brew install pyqt@5
+   ## clone this repo
+   git clone https://github.com/pooranis/ete.git
+   cd ete
+   python3 ./setup.py install --user
+   ## make SQLite-Levenshtein for fuzzy match of names in ncbi
+   cd /path/to/python/user/lib/python3.x/site-packages/ete3-3.1.2-py3.10.egg/ete3/ncbi_taxonomy/SQLite-Levenshtein/
+   make
+
 
 
 

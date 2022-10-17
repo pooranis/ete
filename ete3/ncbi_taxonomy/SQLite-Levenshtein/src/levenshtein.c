@@ -1,7 +1,7 @@
 #include <sqlite3ext.h>
 #include <string.h>
 #include <stdlib.h>
-#include <malloc.h>
+// #include <malloc.h>
 
 #define LEVENSHTEIN_MAX_STRLEN 1024
 // O(n*m) !!!
@@ -52,7 +52,7 @@ int sqlite3_extension_init(
 
 int levenshtein_distance( char* s1, char* s2 ) {
 	int k,i,j,n,m,cost,*d,result;
-	n=strlen(s1); 
+	n=strlen(s1);
 	m=strlen(s2);
 
 	if ( n > LEVENSHTEIN_MAX_STRLEN || m > LEVENSHTEIN_MAX_STRLEN ){
@@ -84,4 +84,3 @@ int levenshtein_distance( char* s1, char* s2 ) {
 		return (n>m)?n:m;
 	}
 }
-

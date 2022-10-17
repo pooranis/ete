@@ -98,27 +98,25 @@ class NCBITaxa(object):
     """
 
     def __init__(self, dbfile=None, taxdump_file=None):
-
+        print(f'Hello {dbfile}', file=sys.stderr)
         if not dbfile:
             self.dbfile = DEFAULT_TAXADB
         else:
             self.dbfile = dbfile
 
-        if taxdump_file:
-            self.update_taxonomy_database(taxdump_file)
-
-        if dbfile != DEFAULT_TAXADB and not os.path.exists(self.dbfile):
-            print('NCBI database not present yet (first time used?)', file=sys.stderr)
+        if os.path.exists(self.dbfile) and taxdump_file:
             self.update_taxonomy_database(taxdump_file)
 
         if not os.path.exists(self.dbfile):
-            raise ValueError("Cannot open taxonomy database: %s" % self.dbfile)
+            print(f'NCBI database not present yet (first time used?)', file=sys.stderr, flush=True)
+            print(f'Making new sqlite db: {self.dbfile}', file=sys.stderr, flush=True)
+            self.update_taxonomy_database(taxdump_file)
 
         self.db = None
         self._connect()
 
         if not is_taxadb_up_to_date(self.dbfile):
-            print('NCBI database format is outdated. Upgrading', file=sys.stderr)
+            print('NCBI database format is outdated. Upgrading', file=sys.stderr, flush=True)
             self.update_taxonomy_database(taxdump_file)
 
     def update_taxonomy_database(self, taxdump_file=None):
@@ -127,6 +125,7 @@ class NCBITaxa(object):
 
         :param None taxdump_file: an alternative location of the taxdump.tax.gz file.
         """
+        print(f'Updating sqlite db {self.dbfile}', file=sys.stderr, flush=True)
         if not taxdump_file:
             update_db(self.dbfile)
         else:
@@ -690,7 +689,8 @@ def load_ncbi_tree_from_dump(tar):
         if name_type == "genbank common name":
             node2common[nodename] = taxname
         elif name_type in set(["synonym", "equivalent name", "genbank equivalent name",
-                               "anamorph", "genbank synonym", "genbank anamorph", "teleomorph"]):
+                               "anamorph", "genbank synonym", "genbank anamorph", "teleomorph", "includes",
+                               "basionym"]):
 
             # Keep track synonyms, but ignore duplicate case-insensitive names. See https://github.com/etetoolkit/ete/issues/469
             synonym_key = (nodename, taxname.lower())
